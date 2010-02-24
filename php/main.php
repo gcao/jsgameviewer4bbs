@@ -10,7 +10,8 @@ $files = array(
 	'../js/parser.js',
 	'../view/js/view.js',
 	'../js/controller.js',
-	'../js/dgs.js'
+	'../js/dgs.js',
+	'../js/gocool.js'
 );
 combine("javascript", $files, dirname(__FILE__), true, dirname(__FILE__) . '/cache');
 ?>

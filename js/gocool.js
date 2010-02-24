@@ -1,5 +1,3 @@
-GOCOOL_GAME_ID_PATTERN = /gid=(\d+)/i;
-
 Object.extend(CONFIG, {
   gocoolUrlPrefix: "/app/"
 });
@@ -23,31 +21,7 @@ Object.extend(GocoolPlayer.prototype, {
     this.gameController = gameController;
   },
 
-  isPlayer: function(){
-    var c = this.gameController;
-    var username = c.getUsername();
-    return username == this.parseUsername(c.game.blackName) || username == this.parseUsername(c.game.whiteName);
-  },
-
-  isMyTurn: function(){
-    var c = this.gameController;
-    var username = c.getUsername();
-    var nextPlayerColor = c.game.getNextPlayer();
-    return (nextPlayerColor == STONE_BLACK && username == this.parseUsername(c.game.blackName)) ||
-           (nextPlayerColor == STONE_WHITE && username == this.parseUsername(c.game.whiteName));
-  },
-
-  parseUsername: function(s){
-    var i = s.indexOf('(');
-    var j = s.indexOf(')');
-    if (i >= 0 & j > i){
-      return s.substring(i+1, j);
-    } else {
-      return s;
-    }
-  },
-
-  sendMove: function(color, moveNumber, x, y, prevX, prevY){
+  sendMove: function(color, moveNumber, x, y){
     var c = this.gameController;
     var node = c.gameState.currentNode;
     var parentNode = node.parent;
@@ -72,23 +46,21 @@ Object.extend(GocoolPlayer.prototype, {
       alert("未知DGS对局号（在对局URL中未找到gid=###，###为对局号）");
       return false;
     }
-    var url = "/jsgameviewer/php/dgs.php?command=PLAY&gid="+gid;
+    var url = c.config.gocoolUrlPrefix + "games/" + c.gocoolId + "/play";
     url += "&color=" + (color==STONE_BLACK?"B":"W");
     url += "&move=" + moveNumber;
+    url += "&x=" + x;
+    url += "&y=" + y;
     var xyToSgf = function(x,y){
       if (x && x >= 0 && y && y >= 0){
         return String.fromCharCode('a'.charCodeAt(0)+x, 'a'.charCodeAt(0)+y);
       }
       return null;
     }
-    var sgf_move = xyToSgf.call(this, x,y);
-    url += "&sgf_move=" + sgf_move;
-    var sgf_prev = xyToSgf.call(this, prevX, prevY);
-    if (sgf_prev != null)
-      url += "&sgf_prev=" + sgf_prev;
     jq.ajax({url: url,
       success:function(response){
         if (response.charAt(0) == '0'){ // success
+          // TODO: move to next game
           c.refresh();
         } else { // failure
           c.setComment(response);
@@ -107,12 +79,6 @@ Object.extend(GocoolPlayer.prototype, {
 
   resign: function(){
     var c = this.gameController;
-    var gid = this.getGameId(c.game.url);
-    if (!gid || gid.length == 0){
-      //alert("DGS game ID not found!");
-      alert("未知DGS对局号（在对局URL中未找到gid=###，###为对局号）");
-      return false;
-    }
     var node = c.gameState.rootNode;
     while(node.hasChildren()){
       var n = node.children[0];
@@ -122,10 +88,11 @@ Object.extend(GocoolPlayer.prototype, {
         node = n;
     }
     var moveNumber = node.moveNumber;
-    var url = "/jsgameviewer/php/dgs.php?command=RESIGN&gid="+gid+"&move="+moveNumber;
+    var url = c.config.gocoolUrlPrefix + "games/" + gocoolId + "/resign";
     jq.ajax({url: url,
       success:function(response){
         if (response.charAt(0) == '0'){ // success
+          // TODO: move to next game
           c.refresh();
         } else { // failure
           c.setComment(response);

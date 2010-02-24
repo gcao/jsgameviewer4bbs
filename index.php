@@ -56,9 +56,10 @@ $container = "gvcontainer1";
 $scripts = array(
 //	"new GameController().show();",
 //	"new GameController().setGameType(DAOQI).load('/jsgameviewer/games/testmarks.sgf');",
-	"new GameController({container:'gvcontainer1'}).load('/jsgameviewer/games/test4.sgf');",
+//	"new GameController({container:'gvcontainer1'}).load('/jsgameviewer/games/test4.sgf');",
 //	"new GameController().load('/jsgameviewer/php/proxy.php?charset=gb2312&url=http://weiqi.spbrts.tom.com/qipu/200712/20cn-ming-f-3sgf.htm').setObserverInterval(20).startUpdater().saveSession('/jsgameviewer/index.php',10);",
 //	"new GameController().createDGSPlayer().setUsername('appoolloo').loadDGSGame(388918).setPlayerInterval(8).startUpdater();"
+  "new GameController().createGocoolPlayer().loadGocoolGame(1).setPlayerInterval(8).startUpdater();"
 );
 foreach($scripts as $script){
 ?>
